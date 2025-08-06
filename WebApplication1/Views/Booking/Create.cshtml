@@ -1,0 +1,614 @@
+@model BookingViewModel
+@{
+    ViewData["Title"] = "Book Your Flight";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Flights" asp-action="Index">Search Flights</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Book Flight</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plane"></i>
+                        Book Your Flight
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <input asp-for="FlightId" type="hidden" />
+                        <input asp-for="PassengerCount" type="hidden" />
+                        <input asp-for="SelectedClass" type="hidden" />
+                        <input asp-for="SelectedSeatIds" type="hidden" id="selectedSeatsInput" />
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <!-- Passenger Information -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user"></i>
+                                    Passenger Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="PassengerFirstName" class="form-label"></label>
+                                            <input asp-for="PassengerFirstName" class="form-control" />
+                                            <span asp-validation-for="PassengerFirstName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="PassengerLastName" class="form-label"></label>
+                                            <input asp-for="PassengerLastName" class="form-control" />
+                                            <span asp-validation-for="PassengerLastName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="PassportNumber" class="form-label"></label>
+                                            <input asp-for="PassportNumber" class="form-control" />
+                                            <span asp-validation-for="PassportNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="PassengerDateOfBirth" class="form-label"></label>
+                                            <input asp-for="PassengerDateOfBirth" class="form-control" type="date" />
+                                            <span asp-validation-for="PassengerDateOfBirth" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-envelope"></i>
+                                    Contact Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="ContactEmail" class="form-label"></label>
+                                            <input asp-for="ContactEmail" class="form-control" />
+                                            <span asp-validation-for="ContactEmail" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="ContactPhone" class="form-label"></label>
+                                            <input asp-for="ContactPhone" class="form-control" />
+                                            <span asp-validation-for="ContactPhone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Flight Preferences -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-cog"></i>
+                                    Flight Preferences
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Travel Class</label>
+                                            <input type="text" class="form-control" value="@Model.SelectedClass.ToString()" readonly />
+                                            <small class="text-muted">Travel class was selected during flight search and cannot be changed here.</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mt-4">
+                                            <input asp-for="IncludeMeal" class="form-check-input" />
+                                            <label asp-for="IncludeMeal" class="form-check-label">
+                                                Include meal service
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row" id="mealSelection" style="display: none;">
+                                    <div class="col-md-12">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="PreferredMealId" class="form-label">Meal Preference</label>
+                                            <select asp-for="PreferredMealId" class="form-select">
+                                                <option value="">Select a meal option</option>
+                                                @foreach (var meal in Model.AvailableMeals)
+                                                {
+                                                    <option value="@meal.Id">@meal.Name - @meal.Description</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seat Selection -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chair"></i>
+                                    Seat Selection
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <input asp-for="PreferredSeatId" type="hidden" />
+                                <div class="mb-3">
+                                    <p class="text-muted small">
+                                        @if (Model.PassengerCount == 1)
+                                        {
+                                            <span>Click on an available seat to select it. Selected seat will be highlighted.</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Select @Model.PassengerCount seats for your passengers. Click on available seats to select them.</span>
+                                        }
+                                    </p>
+                                    <div class="seat-legend mb-3">
+                                        <div class="d-flex gap-3 flex-wrap">
+                                            <div><span class="seat-legend-item available"></span> Available</div>
+                                            <div><span class="seat-legend-item selected"></span> Selected</div>
+                                            <div><span class="seat-legend-item occupied"></span> Occupied</div>
+                                            <div><span class="seat-legend-item window"></span> Window</div>
+                                            <div><span class="seat-legend-item aisle"></span> Aisle</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="seatMapContainer">
+                                    <div id="seatMap" class="seat-map">
+                                        <!-- Seat map will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                                
+                                <div id="selectedSeatInfo" class="mt-3 alert alert-info" style="display: none;">
+                                    <strong>Selected Seats:</strong> <span id="selectedSeatNumbers"></span>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            Selected: <span id="selectedCount">0</span> / <span id="requiredCount">@Model.PassengerCount</span> seats
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-credit-card"></i>
+                                Complete Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Summary Sidebar -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt"></i>
+                        Booking Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Flight ID:</span>
+                        <span>@Model.FlightId</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Passengers:</span>
+                        <span>@Model.PassengerCount Adult@(Model.PassengerCount > 1 ? "s" : "")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Class:</span>
+                        <span id="selectedClassDisplay">@Model.SelectedClass.ToString()</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Base Price per person:</span>
+                        <span id="basePriceDisplay">$@((Model.SelectedClass == WebApplication1.Models.FlightClass.Economy ? Model.Flight?.EconomyPrice ?? 0 : Model.Flight?.BusinessPrice ?? 0).ToString("F2"))</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total for @Model.PassengerCount passenger@(Model.PassengerCount > 1 ? "s" : ""):</span>
+                        <span id="totalPassengerPrice">$@(((Model.SelectedClass == WebApplication1.Models.FlightClass.Economy ? Model.Flight?.EconomyPrice ?? 0 : Model.Flight?.BusinessPrice ?? 0) * Model.PassengerCount).ToString("F2"))</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" id="mealPriceRow" style="display: none;">
+                        <span>Meal Service:</span>
+                        <span>$0.00</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total:</strong>
+                        <strong id="totalPriceDisplay">$@(((Model.SelectedClass == WebApplication1.Models.FlightClass.Economy ? Model.Flight?.EconomyPrice ?? 0 : Model.Flight?.BusinessPrice ?? 0) * Model.PassengerCount).ToString("F2"))</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3">
+                <h6><i class="fas fa-info-circle"></i> Important Notes:</h6>
+                <ul class="mb-0 small">
+                    <li>Free cancellation up to 7 days before departure</li>
+                    <li>Check-in opens 24 hours before departure</li>
+                    <li>Select your preferred seat from the seat map</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <style>
+        .seat-map {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+        }
+        
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 3px;
+        }
+        
+        .row-number {
+            width: 25px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .seat {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .seat.available {
+            background-color: #e8f5e8;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .seat.available:hover {
+            background-color: #d4edda;
+            transform: scale(1.1);
+        }
+        
+        .seat.occupied {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            cursor: not-allowed;
+        }
+        
+        .seat.selected {
+            background-color: #cce5ff;
+            border-color: #007bff;
+            color: #004085;
+            transform: scale(1.1);
+        }
+        
+        .seat.window {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .seat.window.seat-right {
+            border-right: 4px solid #ffc107;
+            border-left: 2px solid #ddd;
+        }
+        
+        .seat.aisle {
+            border-right: 3px solid #17a2b8;
+        }
+        
+        .seat.aisle.seat-left {
+            border-left: 3px solid #17a2b8;
+            border-right: 2px solid #ddd;
+        }
+        
+        .aisle-gap {
+            width: 20px;
+        }
+        
+        .seat-legend-item {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        
+        .seat-legend-item.available {
+            background-color: #e8f5e8;
+            border-color: #28a745;
+        }
+        
+        .seat-legend-item.selected {
+            background-color: #cce5ff;
+            border-color: #007bff;
+        }
+        
+        .seat-legend-item.occupied {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        
+        .seat-legend-item.window {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .seat-legend-item.aisle {
+            background-color: #d1ecf1;
+            border-right: 3px solid #17a2b8;
+        }
+        
+        .class-divider {
+            border-top: 2px dashed #6c757d;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .class-label {
+            position: absolute;
+            left: 50%;
+            top: -10px;
+            transform: translateX(-50%);
+            background: #fff;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #6c757d;
+        }
+    </style>
+    
+    <script>
+        let currentSeats = @Html.Raw(Json.Serialize(Model.AvailableSeats));
+        let selectedSeatIds = [];
+        const flightId = @Model.FlightId;
+        const passengerCount = @Model.PassengerCount;
+        const selectedClass = @((int)Model.SelectedClass);
+        
+        // Handle meal selection visibility
+        const includeMealElement = document.getElementById('IncludeMeal');
+        if (includeMealElement) {
+            includeMealElement.addEventListener('change', function() {
+            const mealSelection = document.getElementById('mealSelection');
+            const mealPriceRow = document.getElementById('mealPriceRow');
+            
+                if (this.checked) {
+                    mealSelection.style.display = 'block';
+                    mealPriceRow.style.display = 'flex';
+                } else {
+                    mealSelection.style.display = 'none';
+                    mealPriceRow.style.display = 'none';
+                }
+            });
+        }
+
+        // Class selection is now fixed from the search, no need for dynamic change handler
+        
+        // Load seats for specific class
+        async function loadSeatsForClass(flightClass) {
+            try {
+                const response = await fetch(`/Booking/GetAvailableSeats?flightId=${flightId}&flightClass=${flightClass}`);
+                const seats = await response.json();
+                currentSeats = seats;
+                renderSeatMap();
+                
+                // Clear selections when changing class
+                selectedSeatIds = [];
+                updateSeatSelection();
+            } catch (error) {
+                console.error('Error loading seats:', error);
+            }
+        }
+        
+        // Render seat map
+        function renderSeatMap() {
+            const seatMap = document.getElementById('seatMap');
+            seatMap.innerHTML = '';
+            
+            // Group seats by row
+            const seatsByRow = {};
+            currentSeats.forEach(seat => {
+                const row = parseInt(seat.seatNumber);
+                if (!seatsByRow[row]) {
+                    seatsByRow[row] = [];
+                }
+                seatsByRow[row].push(seat);
+            });
+            
+            // Sort rows numerically
+            const sortedRows = Object.keys(seatsByRow).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            let isBusinessClass = true;
+            
+            sortedRows.forEach((rowNum, index) => {
+                const row = seatsByRow[rowNum];
+                row.sort((a, b) => a.seatNumber.localeCompare(b.seatNumber));
+                
+                // Add class divider between Business (rows 1-3) and Economy (rows 4+)
+                if (isBusinessClass && parseInt(rowNum) > 3) {
+                    const divider = document.createElement('div');
+                    divider.className = 'class-divider';
+                    divider.innerHTML = '<span class="class-label">ECONOMY CLASS</span>';
+                    seatMap.appendChild(divider);
+                    isBusinessClass = false;
+                }
+                
+                const rowElement = document.createElement('div');
+                rowElement.className = 'seat-row';
+                
+                // Row number
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'row-number';
+                rowLabel.textContent = rowNum;
+                rowElement.appendChild(rowLabel);
+                
+                // Seats
+                row.forEach((seat, seatIndex) => {
+                    const seatElement = document.createElement('div');
+                    
+                    // Set seat class based on availability
+                    if (seat.isAvailable) {
+                        seatElement.className = 'seat available';
+                    } else {
+                        seatElement.className = 'seat occupied';
+                    }
+                    
+                    seatElement.dataset.seatId = seat.id;
+                    seatElement.dataset.seatNumber = seat.seatNumber;
+                    seatElement.textContent = seat.seatNumber.slice(-1); // Show only letter
+                    
+                    // Add special styling for window and aisle seats
+                    if (seat.isWindowSeat) {
+                        if (seat.seatNumber.endsWith('A')) {
+                            seatElement.classList.add('window');
+                        } else {
+                            seatElement.classList.add('window', 'seat-right');
+                        }
+                    }
+                    
+                    if (seat.isAisleSeat) {
+                        if (seat.seatNumber.endsWith('C')) {
+                            seatElement.classList.add('aisle');
+                        } else {
+                            seatElement.classList.add('aisle', 'seat-left');
+                        }
+                    }
+                    
+                    // Only add click handler for available seats
+                    if (seat.isAvailable) {
+                        seatElement.addEventListener('click', () => toggleSeatSelection(seat.id, seat.seatNumber));
+                    }
+                    
+                    rowElement.appendChild(seatElement);
+                    
+                    // Add aisle gap in middle for Economy (between C and D)
+                    if (parseInt(rowNum) > 3 && seat.seatNumber.endsWith('C')) {
+                        const aisleGap = document.createElement('div');
+                        aisleGap.className = 'aisle-gap';
+                        rowElement.appendChild(aisleGap);
+                    }
+                });
+                
+                seatMap.appendChild(rowElement);
+            });
+        }
+        
+        // Toggle seat selection (support multiple seats)
+        function toggleSeatSelection(seatId, seatNumber) {
+            const seatElement = document.querySelector(`[data-seat-id="${seatId}"]`);
+            
+            if (selectedSeatIds.includes(seatId)) {
+                // Deselect seat
+                const index = selectedSeatIds.indexOf(seatId);
+                selectedSeatIds.splice(index, 1);
+                seatElement.classList.remove('selected');
+            } else {
+                // Check if we've reached the passenger limit
+                if (selectedSeatIds.length >= passengerCount) {
+                    alert(`You can only select ${passengerCount} seat(s) for ${passengerCount} passenger(s).`);
+                    return;
+                }
+                
+                // Select seat
+                selectedSeatIds.push(seatId);
+                seatElement.classList.add('selected');
+            }
+            
+            // Update form and display
+            updateSeatSelection();
+        }
+        
+        function updateSeatSelection() {
+            // Update hidden form field
+            const selectedSeatsInput = document.getElementById('selectedSeatsInput');
+            if (selectedSeatsInput) {
+                selectedSeatsInput.value = selectedSeatIds.join(',');
+            }
+            
+            // Update display
+            const seatNumbers = selectedSeatIds.map(id => {
+                const seatElement = document.querySelector(`[data-seat-id="${id}"]`);
+                return seatElement ? seatElement.dataset.seatNumber : '';
+            }).filter(num => num).join(', ');
+            
+            const selectedSeatNumbersElement = document.getElementById('selectedSeatNumbers');
+            if (selectedSeatNumbersElement) {
+                selectedSeatNumbersElement.textContent = seatNumbers || 'None';
+            }
+            
+            const selectedCountElement = document.getElementById('selectedCount');
+            if (selectedCountElement) {
+                selectedCountElement.textContent = selectedSeatIds.length;
+            }
+            
+            const selectedSeatInfoElement = document.getElementById('selectedSeatInfo');
+            if (selectedSeatInfoElement) {
+                selectedSeatInfoElement.style.display = selectedSeatIds.length > 0 ? 'block' : 'none';
+            }
+        }
+        
+        // Initialize seat map on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing seat map for', passengerCount, 'passengers');
+            renderSeatMap();
+            
+            // Update the required count display
+            const requiredCountElement = document.getElementById('requiredCount');
+            if (requiredCountElement) {
+                requiredCountElement.textContent = passengerCount;
+            } else {
+                console.warn('requiredCount element not found');
+            }
+        });
+    </script>
+}

@@ -1,0 +1,347 @@
+@model WebApplication1.ViewModels.FlightSearchViewModel
+@using WebApplication1.Extensions
+@{
+    ViewData["Title"] = "Flight Search";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-plane"></i>
+                Search Flights
+            </h2>
+            
+            @if (TempData["SeatError"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    @TempData["SeatError"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Find Your Perfect Flight</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Search" method="post">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="OriginCityId" class="form-label"></label>
+                                    <select asp-for="OriginCityId" class="form-select" asp-items="@(new SelectList(Model.AvailableCities, "Id", "Name"))">
+                                        <option value="">Select Origin</option>
+                                    </select>
+                                    <span asp-validation-for="OriginCityId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="DestinationCityId" class="form-label"></label>
+                                    <select asp-for="DestinationCityId" class="form-select" asp-items="@(new SelectList(Model.AvailableCities, "Id", "Name"))">
+                                        <option value="">Select Destination</option>
+                                    </select>
+                                    <span asp-validation-for="DestinationCityId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label asp-for="DepartureDate" class="form-label"></label>
+                                    <input asp-for="DepartureDate" class="form-control" type="date" />
+                                    <span asp-validation-for="DepartureDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label asp-for="ReturnDate" class="form-label"></label>
+                                    <input asp-for="ReturnDate" class="form-control" type="date" />
+                                    <span asp-validation-for="ReturnDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label asp-for="Passengers" class="form-label"></label>
+                                    <select asp-for="Passengers" class="form-select">
+                                        @for (int i = 1; i <= 9; i++)
+                                        {
+                                            <option value="@i">@i Passenger@(i > 1 ? "s" : "")</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Passengers" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="TravelClass" class="form-label"></label>
+                                    <select asp-for="TravelClass" class="form-select">
+                                        <option value="1" selected>Economy</option>
+                                        <option value="2">Business</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check mt-4">
+                                    <input asp-for="NonStopOnly" class="form-check-input" type="checkbox" />
+                                    <label asp-for="NonStopOnly" class="form-check-label">
+                                        Non-stop flights only
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-grid gap-2 mt-4">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-search"></i>
+                                        Search Flights
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    @if (Model.HasSearched)
+    {
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            Flight Results
+                            @if (Model.SearchResults.Any())
+                            {
+                                <span class="badge bg-primary">@Model.SearchResults.Count flights found</span>
+                            }
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (!Model.SearchResults.Any())
+                        {
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-info-circle"></i>
+                                No flights found for your search criteria. Please try different dates or destinations.
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var flight in Model.SearchResults)
+                            {
+                                <div class="card mb-3 flight-result">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2">
+                                                <h6 class="mb-1">@flight.FlightNumber</h6>
+                                                <small class="text-muted">Flight</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <h6 class="mb-1">@flight.OriginCity.Name (@flight.OriginCity.AirportCode)</h6>
+                                                <p class="mb-1">@flight.DepartureDate.ToString("HH:mm")</p>
+                                                <small class="text-muted">@flight.DepartureDate.ToString("MMM dd, yyyy")</small>
+                                            </div>
+                                            <div class="col-md-1 text-center">
+                                                @if (flight.NumberOfStops > 0)
+                                                {
+                                                    <div class="flight-path">
+                                                        <i class="fas fa-plane text-primary"></i>
+                                                        <div class="stops-info">
+                                                            <span class="stops-count">@flight.NumberOfStops stop@(flight.NumberOfStops > 1 ? "s" : "")</span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-plane text-primary"></i>
+                                                    <div><small class="text-success">Direct</small></div>
+                                                }
+                                            </div>
+                                            <div class="col-md-3">
+                                                <h6 class="mb-1">@flight.DestinationCity.Name (@flight.DestinationCity.AirportCode)</h6>
+                                                <p class="mb-1">@flight.ArrivalDate.ToString("HH:mm")</p>
+                                                <small class="text-muted">@flight.ArrivalDate.ToString("MMM dd, yyyy")</small>
+                                            </div>
+                                            <div class="col-md-2 text-end">
+                                                <h5 class="mb-1 text-primary">
+                                                    @if (Model.TravelClass == WebApplication1.Models.FlightClass.Economy)
+                                                    {
+                                                        <span>$@flight.EconomyPrice</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>$@flight.BusinessPrice</span>
+                                                    }
+                                                </h5>
+                                                <small class="text-muted">
+                                                    @Model.TravelClass.ToString()
+                                                </small>
+                                            </div>
+                                            <div class="col-md-1">
+                                                <a href="@Url.Action("Book", new { flightId = flight.Id, passengers = Model.Passengers, travelClass = (int)Model.TravelClass })" class="btn btn-success btn-sm">
+                                                    Book Now
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-12">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock"></i>
+                                                    Duration: @((flight.ArrivalDate - flight.DepartureDate).Hours)h @((flight.ArrivalDate - flight.DepartureDate).Minutes % 60)m
+                                                    |
+                                                    <i class="fas fa-users"></i>
+                                                    Available seats: Economy (@flight.EconomyAvailableSeats), Business (@flight.BusinessAvailableSeats)
+                                                    @if (flight.NumberOfStops > 0)
+                                                    {
+                                                        <span>
+                                                            |
+                                                            <i class="fas fa-map-marker-alt"></i>
+                                                            @flight.GetStopoverDescription()
+                                                        </span>
+                                                    }
+                                                </small>
+                                            </div>
+                                        </div>
+                                        
+                                        @if (flight.NumberOfStops > 0)
+                                        {
+                                            var stopoverInfo = flight.GetStopoverInfo();
+                                            if (stopoverInfo?.Stopovers?.Any() == true)
+                                            {
+                                                <div class="row mt-2">
+                                                    <div class="col-md-12">
+                                                        <div class="stopover-details p-2 bg-light rounded">
+                                                            <h6 class="mb-2 text-primary">
+                                                                <i class="fas fa-route"></i>
+                                                                Flight Route Details
+                                                            </h6>
+                                                            <div class="route-timeline">
+                                                                @foreach (var stopover in stopoverInfo.Stopovers)
+                                                                {
+                                                                    <div class="stopover-item d-flex align-items-center mb-2">
+                                                                        <div class="stopover-icon">
+                                                                            <i class="fas fa-circle text-warning"></i>
+                                                                        </div>
+                                                                        <div class="stopover-info ms-2">
+                                                                            <strong>@stopover.CityName (@stopover.AirportCode)</strong>
+                                                                            <div class="text-muted small">
+                                                                                Layover: @((int)stopover.LayoverDuration.TotalHours)h @(stopover.LayoverDuration.Minutes)m
+                                                                                @if (!string.IsNullOrEmpty(stopover.Terminal))
+                                                                                {
+                                                                                    <span>• Terminal @stopover.Terminal</span>
+                                                                                }
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Set minimum date for departure to tomorrow
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const departureDateInput = document.querySelector('input[name="DepartureDate"]');
+            const returnDateInput = document.querySelector('input[name="ReturnDate"]');
+            
+            const minDate = tomorrow.toISOString().split('T')[0];
+            departureDateInput.min = minDate;
+            
+            // Update return date minimum when departure date changes
+            departureDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const departureDate = new Date(this.value);
+                    const nextDay = new Date(departureDate);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    returnDateInput.min = nextDay.toISOString().split('T')[0];
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    .flight-result {
+        transition: all 0.3s ease;
+        border: 1px solid #dee2e6;
+    }
+    
+    .flight-result:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .flight-path {
+        position: relative;
+    }
+    
+    .stops-info {
+        margin-top: 4px;
+    }
+    
+    .stops-count {
+        background: #ffc107;
+        color: #000;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .stopover-details {
+        border-left: 3px solid #007bff;
+        margin-top: 8px;
+    }
+    
+    .route-timeline {
+        position: relative;
+    }
+    
+    .stopover-item {
+        position: relative;
+    }
+    
+    .stopover-icon {
+        min-width: 20px;
+    }
+    
+    .stopover-info {
+        flex: 1;
+    }
+</style>

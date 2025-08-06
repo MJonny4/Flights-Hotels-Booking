@@ -1,0 +1,113 @@
+@model Booking
+@{
+    ViewData["Title"] = "Booking Confirmation";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0 text-center">
+                        <i class="fas fa-check-circle"></i>
+                        Booking Confirmed!
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-ticket-alt"></i> Your booking has been successfully created!</h5>
+                            <p class="mb-0">A confirmation email has been sent to <strong>@Model.ContactEmail</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle"></i> Booking Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Booking Reference:</strong></td>
+                                    <td><span class="badge bg-primary fs-6">@Model.BookingReference</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Booking Date:</strong></td>
+                                    <td>@Model.BookingDate.ToString("MMM dd, yyyy 'at' HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td><span class="badge bg-warning">@Model.Status</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Amount:</strong></td>
+                                    <td><strong class="text-primary">$@Model.TotalAmount</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-user"></i> Passenger Details</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Name:</strong></td>
+                                    <td>@Model.PassengerFirstName @Model.PassengerLastName</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Date of Birth:</strong></td>
+                                    <td>@Model.PassengerDateOfBirth.ToString("MMM dd, yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Passport:</strong></td>
+                                    <td>@Model.PassportNumber</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Contact Email:</strong></td>
+                                    <td>@Model.ContactEmail</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Important Information:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Check-in:</strong> Online check-in opens 24 hours before departure</li>
+                            <li><strong>Cancellation:</strong> Free cancellation up to 7 days before departure</li>
+                            <li><strong>Changes:</strong> Contact customer service for any changes to your booking</li>
+                            <li><strong>Documents:</strong> Please ensure your passport is valid for at least 6 months</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <div class="btn-group" role="group">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
+                                <i class="fas fa-home"></i> Return Home
+                            </a>
+                            <a href="@Url.Action("Index", "Flights")" class="btn btn-outline-primary">
+                                <i class="fas fa-search"></i> Search More Flights
+                            </a>
+                            <button class="btn btn-primary" onclick="window.print()">
+                                <i class="fas fa-print"></i> Print Confirmation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@media print {
+        .btn-group {
+            display: none !important;
+        }
+        
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .alert {
+            border: 1px solid #000 !important;
+        }
+    }
+</style>

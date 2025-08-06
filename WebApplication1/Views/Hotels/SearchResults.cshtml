@@ -1,0 +1,662 @@
+@model HotelSearchResultViewModel
+@{
+    ViewData["Title"] = $"Hotels in {Model.DestinationCity}";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Hotels" asp-action="Index">Search Hotels</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.DestinationCity</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Search Summary -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-2">
+                                <i class="fas fa-bed me-2 text-primary"></i>
+                                Hotels in @Model.DestinationCity
+                            </h4>
+                            <div class="d-flex flex-wrap gap-3 text-muted">
+                                <span>
+                                    <i class="fas fa-calendar-check me-1"></i>
+                                    @Model.CheckInDate.ToString("MMM dd, yyyy")
+                                </span>
+                                <span>
+                                    <i class="fas fa-calendar-times me-1"></i>
+                                    @Model.CheckOutDate.ToString("MMM dd, yyyy")
+                                </span>
+                                <span>
+                                    <i class="fas fa-moon me-1"></i>
+                                    @Model.TotalNights night@(Model.TotalNights > 1 ? "s" : "")
+                                </span>
+                                <span>
+                                    <i class="fas fa-user me-1"></i>
+                                    @Model.Adults adult@(Model.Adults > 1 ? "s" : "")
+                                </span>
+                                <span>
+                                    <i class="fas fa-door-open me-1"></i>
+                                    @Model.Rooms room@(Model.Rooms > 1 ? "s" : "")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-outline-primary" onclick="toggleSearchForm()">
+                                <i class="fas fa-edit me-2"></i>
+                                Modify Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modify Search Form (Hidden by default) -->
+    <div class="row mb-4" id="modifySearchForm" style="display: none;">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Search" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Check-in Date</label>
+                                <input name="CheckInDate" class="form-control" type="date" value="@Model.CheckInDate.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Check-out Date</label>
+                                <input name="CheckOutDate" class="form-control" type="date" value="@Model.CheckOutDate.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Adults</label>
+                                <select name="Adults" class="form-select">
+                                    @for (int i = 1; i <= 10; i++)
+                                    {
+                                        <option value="@i" selected="@(Model.Adults == i)">@i</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Rooms</label>
+                                <select name="Rooms" class="form-select">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <option value="@i" selected="@(Model.Rooms == i)">@i</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input name="SelectedCityId" type="hidden" value="@Model.SearchRequest.SelectedCityId" />
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary d-block w-100">
+                                    <i class="fas fa-search me-1"></i>
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Count -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    Found @Model.TotalHotels hotel@(Model.TotalHotels != 1 ? "s" : "")
+                    @if (Model.TotalHotels > Model.DisplayedCount)
+                    {
+                        <small class="text-muted">(showing @Model.DisplayedCount of @Model.TotalHotels)</small>
+                    }
+                </h5>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                        <i class="fas fa-sort me-2"></i>
+                        Sort by
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="sortHotels('name')">Name</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sortHotels('distance')">Distance</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="sortHotels('chain')">Hotel Chain</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hotel Results -->
+    <div class="row" id="hotelResults">
+        @if (Model.Hotels.Any())
+        {
+            @foreach (var hotel in Model.Hotels)
+            {
+                <div class="col-md-12 mb-4 hotel-card" data-hotel-name="@hotel.Name" data-hotel-chain="@hotel.ChainCode" data-hotel-distance="@(hotel.Distance?.Value ?? 0)">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-start mb-2">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title mb-1 fw-bold">
+                                                @hotel.Name
+                                                @if (!string.IsNullOrEmpty(hotel.ChainCode))
+                                                {
+                                                    <span class="badge bg-secondary ms-2">@hotel.ChainCode</span>
+                                                }
+                                            </h5>
+                                            <div class="text-muted mb-2">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                @if (hotel.Address.Lines.Any())
+                                                {
+                                                    @string.Join(", ", hotel.Address.Lines)
+                                                }
+                                                @if (!string.IsNullOrEmpty(hotel.Address.CityName))
+                                                {
+                                                    <br />
+                                                    <span>@hotel.Address.CityName, @hotel.Address.CountryCode</span>
+                                                }
+                                                @if (hotel.Distance != null)
+                                                {
+                                                    <br />
+                                                    <small class="text-info">
+                                                        <i class="fas fa-route me-1"></i>
+                                                        @hotel.Distance.Value.ToString("F1") @hotel.Distance.Unit from city center
+                                                    </small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Hotel Features -->
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-wifi me-1"></i>
+                                            Free WiFi
+                                        </span>
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-parking me-1"></i>
+                                            Parking
+                                        </span>
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-dumbbell me-1"></i>
+                                            Fitness Center
+                                        </span>
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-concierge-bell me-1"></i>
+                                            Room Service
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 text-end">
+                                    <div class="d-flex flex-column h-100 justify-content-between">
+                                        <!-- Rating placeholder -->
+                                        <div class="mb-3">
+                                            <div class="d-flex align-items-center justify-content-end mb-1">
+                                                <div class="rating-stars me-2">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    }
+                                                </div>
+                                                <span class="badge bg-success">4.5</span>
+                                            </div>
+                                            <small class="text-muted">Based on guest reviews</small>
+                                        </div>
+
+                                        <!-- Price and Action -->
+                                        <div>
+                                            <div class="text-end mb-3">
+                                                <div class="price-loading text-muted" data-hotel-id="@hotel.HotelId">
+                                                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                    Loading prices...
+                                                </div>
+                                                <div class="price-content" data-hotel-id="@hotel.HotelId" style="display: none;">
+                                                    <!-- Prices will be loaded via AJAX -->
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="d-grid">
+                                                <a asp-action="Details" 
+                                                   asp-route-hotelId="@hotel.HotelId"
+                                                   asp-route-checkInDate="@Model.CheckInDate.ToString("yyyy-MM-dd")"
+                                                   asp-route-checkOutDate="@Model.CheckOutDate.ToString("yyyy-MM-dd")"
+                                                   asp-route-adults="@Model.Adults"
+                                                   asp-route-rooms="@Model.Rooms"
+                                                   class="btn btn-primary">
+                                                    <i class="fas fa-eye me-2"></i>
+                                                    View Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-bed display-1 text-muted mb-3"></i>
+                        <h4>No Hotels Found</h4>
+                        <p class="text-muted">
+                            We couldn't find any hotels for your search criteria in @Model.DestinationCity.
+                            Try adjusting your dates or search for a different destination.
+                        </p>
+                        <a asp-action="Index" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>
+                            Search Again
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- See More Button -->
+    @if (Model.HasMore)
+    {
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <button id="loadMoreBtn" class="btn btn-outline-primary btn-lg" onclick="loadMoreHotels()">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    See More Hotels
+                    <span class="badge bg-primary ms-2">@(Model.TotalHotels - Model.DisplayedCount) remaining</span>
+                </button>
+                <div id="loadingMore" class="mt-3" style="display: none;">
+                    <div class="spinner-border text-primary me-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="text-muted">Loading more hotels...</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load prices for all hotels
+            loadHotelPrices();
+        });
+
+        function toggleSearchForm() {
+            const form = document.getElementById('modifySearchForm');
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                form.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        function loadHotelPrices() {
+            const hotelIds = [];
+            document.querySelectorAll('[data-hotel-id]').forEach(element => {
+                const hotelId = element.dataset.hotelId;
+                if (hotelId && !hotelIds.includes(hotelId)) {
+                    hotelIds.push(hotelId);
+                }
+            });
+
+            if (hotelIds.length === 0) return;
+
+            const params = new URLSearchParams({
+                hotelIds: hotelIds.join(','),
+                checkInDate: '@Model.CheckInDate.ToString("yyyy-MM-dd")',
+                checkOutDate: '@Model.CheckOutDate.ToString("yyyy-MM-dd")',
+                adults: @Model.Adults,
+                rooms: @Model.Rooms
+            });
+
+            fetch(`/Hotels/GetOffers?${params}`)
+                .then(response => response.json())
+                .then(offers => {
+                    // Group offers by hotel
+                    const offersByHotel = {};
+                    offers.forEach(offer => {
+                        if (!offersByHotel[offer.hotelId]) {
+                            offersByHotel[offer.hotelId] = [];
+                        }
+                        offersByHotel[offer.hotelId].push(offer);
+                    });
+
+                    // Update price displays
+                    hotelIds.forEach(hotelId => {
+                        const loadingElement = document.querySelector(`.price-loading[data-hotel-id="${hotelId}"]`);
+                        const contentElement = document.querySelector(`.price-content[data-hotel-id="${hotelId}"]`);
+                        
+                        if (loadingElement) loadingElement.style.display = 'none';
+                        
+                        if (contentElement) {
+                            const hotelOffers = offersByHotel[hotelId];
+                            if (hotelOffers && hotelOffers.length > 0) {
+                                const cheapestOffer = hotelOffers.reduce((min, offer) => 
+                                    parseFloat(offer.price.total) < parseFloat(min.price.total) ? offer : min
+                                );
+                                
+                                contentElement.innerHTML = `
+                                    <div class="text-end">
+                                        <div class="h5 mb-1 text-success fw-bold">
+                                            ${cheapestOffer.price.currency} ${parseFloat(cheapestOffer.price.total).toFixed(2)}
+                                        </div>
+                                        <small class="text-muted">per night</small>
+                                        ${hotelOffers.length > 1 ? `<br><small class="text-info">${hotelOffers.length} options available</small>` : ''}
+                                    </div>
+                                `;
+                            } else {
+                                contentElement.innerHTML = `
+                                    <div class="text-muted">
+                                        <small>Prices not available</small>
+                                    </div>
+                                `;
+                            }
+                            contentElement.style.display = 'block';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading hotel prices:', error);
+                    // Hide loading spinners
+                    document.querySelectorAll('.price-loading').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    document.querySelectorAll('.price-content').forEach(el => {
+                        el.innerHTML = '<div class="text-muted"><small>Prices unavailable</small></div>';
+                        el.style.display = 'block';
+                    });
+                });
+        }
+
+        let currentSkip = @Model.DisplayedCount; // Track how many hotels we've loaded
+
+        function loadMoreHotels() {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const loadingMore = document.getElementById('loadingMore');
+            
+            // Show loading state
+            loadMoreBtn.style.display = 'none';
+            loadingMore.style.display = 'block';
+
+            const params = new URLSearchParams({
+                skip: currentSkip,
+                take: 3
+            });
+
+            fetch(`/Hotels/LoadMoreHotels?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Add new hotels to the results
+                        const hotelResults = document.getElementById('hotelResults');
+                        
+                        data.hotels.forEach(hotel => {
+                            const hotelCard = createHotelCard(hotel, data.searchRequest);
+                            hotelResults.appendChild(hotelCard);
+                        });
+
+                        // Update the skip counter
+                        currentSkip += data.hotels.length;
+
+                        // Load prices for the new hotels
+                        loadHotelPricesForNew(data.hotels, data.searchRequest);
+
+                        // Update UI
+                        updateResultsCount(currentSkip, @Model.TotalHotels);
+
+                        if (data.hasMore) {
+                            // Show load more button again
+                            loadMoreBtn.style.display = 'inline-block';
+                            const remainingCount = @Model.TotalHotels - currentSkip;
+                            loadMoreBtn.querySelector('.badge').textContent = `${remainingCount} remaining`;
+                        }
+                    } else {
+                        alert(data.message || 'Failed to load more hotels');
+                        loadMoreBtn.style.display = 'inline-block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading more hotels:', error);
+                    alert('An error occurred while loading more hotels');
+                    loadMoreBtn.style.display = 'inline-block';
+                })
+                .finally(() => {
+                    loadingMore.style.display = 'none';
+                });
+        }
+
+        function createHotelCard(hotel, searchRequest) {
+            const div = document.createElement('div');
+            div.className = 'col-md-12 mb-4 hotel-card';
+            div.setAttribute('data-hotel-name', hotel.name);
+            div.setAttribute('data-hotel-chain', hotel.chainCode || '');
+            div.setAttribute('data-hotel-distance', hotel.distance?.value || 0);
+
+            div.innerHTML = `
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-start mb-2">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-1 fw-bold">
+                                            ${hotel.name}
+                                            ${hotel.chainCode ? `<span class="badge bg-secondary ms-2">${hotel.chainCode}</span>` : ''}
+                                        </h5>
+                                        <div class="text-muted mb-2">
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            ${hotel.address.lines?.length ? hotel.address.lines.join(', ') : ''}
+                                            ${hotel.address.cityName ? `<br><span>${hotel.address.cityName}, ${hotel.address.countryCode}</span>` : ''}
+                                            ${hotel.distance ? `<br><small class="text-info"><i class="fas fa-route me-1"></i>${hotel.distance.value.toFixed(1)} ${hotel.distance.unit} from city center</small>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-wifi me-1"></i>Free WiFi
+                                    </span>
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-parking me-1"></i>Parking
+                                    </span>
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-dumbbell me-1"></i>Fitness Center
+                                    </span>
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-concierge-bell me-1"></i>Room Service
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="d-flex flex-column h-100 justify-content-between">
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center justify-content-end mb-1">
+                                            <div class="rating-stars me-2">
+                                                ${Array(5).fill('<i class="fas fa-star text-warning"></i>').join('')}
+                                            </div>
+                                            <span class="badge bg-success">4.5</span>
+                                        </div>
+                                        <small class="text-muted">Based on guest reviews</small>
+                                    </div>
+                                    <div>
+                                        <div class="text-end mb-3">
+                                            <div class="price-loading text-muted" data-hotel-id="${hotel.hotelId}">
+                                                <div class="spinner-border spinner-border-sm me-2" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                Loading prices...
+                                            </div>
+                                            <div class="price-content" data-hotel-id="${hotel.hotelId}" style="display: none;">
+                                                <!-- Prices will be loaded via AJAX -->
+                                            </div>
+                                        </div>
+                                        <div class="d-grid">
+                                            <a href="/Hotels/Details?hotelId=${hotel.hotelId}&checkInDate=${searchRequest.checkInDate}&checkOutDate=${searchRequest.checkOutDate}&adults=${searchRequest.adults}&rooms=${searchRequest.rooms}" class="btn btn-primary">
+                                                <i class="fas fa-eye me-2"></i>View Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return div;
+        }
+
+        function loadHotelPricesForNew(hotels, searchRequest) {
+            const hotelIds = hotels.map(h => h.hotelId);
+            
+            const params = new URLSearchParams({
+                hotelIds: hotelIds.join(','),
+                checkInDate: searchRequest.checkInDate,
+                checkOutDate: searchRequest.checkOutDate,
+                adults: searchRequest.adults,
+                rooms: searchRequest.rooms
+            });
+
+            fetch(`/Hotels/GetOffers?${params}`)
+                .then(response => response.json())
+                .then(offers => {
+                    // Group offers by hotel
+                    const offersByHotel = {};
+                    offers.forEach(offer => {
+                        if (!offersByHotel[offer.hotelId]) {
+                            offersByHotel[offer.hotelId] = [];
+                        }
+                        offersByHotel[offer.hotelId].push(offer);
+                    });
+
+                    // Update price displays for new hotels only
+                    hotelIds.forEach(hotelId => {
+                        const loadingElement = document.querySelector(`.price-loading[data-hotel-id="${hotelId}"]`);
+                        const contentElement = document.querySelector(`.price-content[data-hotel-id="${hotelId}"]`);
+                        
+                        if (loadingElement) loadingElement.style.display = 'none';
+                        
+                        if (contentElement) {
+                            const hotelOffers = offersByHotel[hotelId];
+                            if (hotelOffers && hotelOffers.length > 0) {
+                                const cheapestOffer = hotelOffers.reduce((min, offer) => 
+                                    parseFloat(offer.price.total) < parseFloat(min.price.total) ? offer : min
+                                );
+                                
+                                contentElement.innerHTML = `
+                                    <div class="text-end">
+                                        <div class="h5 mb-1 text-success fw-bold">
+                                            ${cheapestOffer.price.currency} ${parseFloat(cheapestOffer.price.total).toFixed(2)}
+                                        </div>
+                                        <small class="text-muted">per night</small>
+                                        ${hotelOffers.length > 1 ? `<br><small class="text-info">${hotelOffers.length} options available</small>` : ''}
+                                    </div>
+                                `;
+                            } else {
+                                contentElement.innerHTML = `
+                                    <div class="text-muted">
+                                        <small>Prices not available</small>
+                                    </div>
+                                `;
+                            }
+                            contentElement.style.display = 'block';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading hotel prices:', error);
+                    hotelIds.forEach(hotelId => {
+                        const loadingElement = document.querySelector(`.price-loading[data-hotel-id="${hotelId}"]`);
+                        const contentElement = document.querySelector(`.price-content[data-hotel-id="${hotelId}"]`);
+                        
+                        if (loadingElement) loadingElement.style.display = 'none';
+                        if (contentElement) {
+                            contentElement.innerHTML = '<div class="text-muted"><small>Prices unavailable</small></div>';
+                            contentElement.style.display = 'block';
+                        }
+                    });
+                });
+        }
+
+        function updateResultsCount(displayedCount, totalCount) {
+            const resultsHeader = document.querySelector('h5.mb-0');
+            if (resultsHeader) {
+                resultsHeader.innerHTML = `
+                    Found ${totalCount} hotel${totalCount !== 1 ? 's' : ''}
+                    ${totalCount > displayedCount ? `<small class="text-muted">(showing ${displayedCount} of ${totalCount})</small>` : ''}
+                `;
+            }
+        }
+
+        function sortHotels(sortBy) {
+            const container = document.getElementById('hotelResults');
+            const cards = Array.from(container.querySelectorAll('.hotel-card'));
+            
+            cards.sort((a, b) => {
+                let aValue, bValue;
+                
+                switch(sortBy) {
+                    case 'name':
+                        aValue = a.dataset.hotelName.toLowerCase();
+                        bValue = b.dataset.hotelName.toLowerCase();
+                        return aValue.localeCompare(bValue);
+                    case 'distance':
+                        aValue = parseFloat(a.dataset.hotelDistance) || 0;
+                        bValue = parseFloat(b.dataset.hotelDistance) || 0;
+                        return aValue - bValue;
+                    case 'chain':
+                        aValue = a.dataset.hotelChain || '';
+                        bValue = b.dataset.hotelChain || '';
+                        return aValue.localeCompare(bValue);
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Re-append sorted cards
+            cards.forEach(card => container.appendChild(card));
+            
+            // Update dropdown text
+            const sortText = sortBy.charAt(0).toUpperCase() + sortBy.slice(1);
+            document.getElementById('sortDropdown').innerHTML = `<i class="fas fa-sort me-2"></i>Sort by: ${sortText}`;
+        }
+    </script>
+
+    <style>
+        .hotel-card {
+            transition: transform 0.2s ease;
+        }
+        
+        .hotel-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .rating-stars .fa-star {
+            font-size: 14px;
+        }
+        
+        .price-loading .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+    </style>
+}

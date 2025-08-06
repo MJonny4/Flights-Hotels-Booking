@@ -1,0 +1,318 @@
+@model HotelBookingViewModel
+@{
+    ViewData["Title"] = $"Book Hotel - {Model.HotelName}";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Hotels" asp-action="Index">Search Hotels</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Details" asp-route-hotelId="@Model.HotelId" asp-route-checkInDate="@Model.CheckInDate.ToString("yyyy-MM-dd")" asp-route-checkOutDate="@Model.CheckOutDate.ToString("yyyy-MM-dd")" asp-route-adults="@Model.Adults" asp-route-rooms="@Model.Rooms">@Model.HotelName</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Book Now</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Booking Form -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Guest Information
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Book" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Hidden fields for booking details -->
+                        <input asp-for="OfferId" type="hidden" />
+                        <input asp-for="HotelId" type="hidden" />
+                        <input asp-for="HotelName" type="hidden" />
+                        <input asp-for="CheckInDate" type="hidden" />
+                        <input asp-for="CheckOutDate" type="hidden" />
+                        <input asp-for="Adults" type="hidden" />
+                        <input asp-for="Rooms" type="hidden" />
+                        <input asp-for="RoomType" type="hidden" />
+                        <input asp-for="RoomDescription" type="hidden" />
+                        <input asp-for="TotalPrice" type="hidden" />
+                        <input asp-for="Currency" type="hidden" />
+
+                        <!-- Guest Information -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="GuestFirstName" class="form-label fw-bold">
+                                    <i class="fas fa-user me-1 text-primary"></i>
+                                    First Name
+                                </label>
+                                <input asp-for="GuestFirstName" class="form-control form-control-lg" placeholder="Enter your first name" />
+                                <span asp-validation-for="GuestFirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="GuestLastName" class="form-label fw-bold">
+                                    <i class="fas fa-user me-1 text-primary"></i>
+                                    Last Name
+                                </label>
+                                <input asp-for="GuestLastName" class="form-control form-control-lg" placeholder="Enter your last name" />
+                                <span asp-validation-for="GuestLastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label asp-for="GuestEmail" class="form-label fw-bold">
+                                    <i class="fas fa-envelope me-1 text-primary"></i>
+                                    Email Address
+                                </label>
+                                <input asp-for="GuestEmail" class="form-control form-control-lg" placeholder="Enter your email address" />
+                                <span asp-validation-for="GuestEmail" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="GuestPhone" class="form-label fw-bold">
+                                    <i class="fas fa-phone me-1 text-primary"></i>
+                                    Phone Number
+                                </label>
+                                <input asp-for="GuestPhone" class="form-control form-control-lg" placeholder="Enter your phone number" />
+                                <span asp-validation-for="GuestPhone" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-12">
+                                <label asp-for="SpecialRequests" class="form-label fw-bold">
+                                    <i class="fas fa-comment me-1 text-primary"></i>
+                                    Special Requests <span class="text-muted">(Optional)</span>
+                                </label>
+                                <textarea asp-for="SpecialRequests" class="form-control" rows="3" placeholder="Any special requests or comments..."></textarea>
+                                <span asp-validation-for="SpecialRequests" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="termsAccepted" required>
+                                    <label class="form-check-label" for="termsAccepted">
+                                        I agree to the <a href="#" class="text-primary">Terms and Conditions</a> and <a href="#" class="text-primary">Privacy Policy</a>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    <i class="fas fa-credit-card me-2"></i>
+                                    Complete Booking
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-receipt me-2"></i>
+                        Booking Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Hotel Information -->
+                    <div class="hotel-summary mb-4">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-hotel me-2 text-primary"></i>
+                            @Model.HotelName
+                        </h6>
+                        <div class="text-muted small mb-2">Hotel ID: @Model.HotelId</div>
+                    </div>
+
+                    <!-- Stay Details -->
+                    <div class="stay-details mb-4">
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar-check text-success me-1"></i>
+                                    <small class="text-muted">Check-in</small>
+                                    <div class="fw-medium">@Model.CheckInDate.ToString("MMM dd, yyyy")</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar-times text-danger me-1"></i>
+                                    <small class="text-muted">Check-out</small>
+                                    <div class="fw-medium">@Model.CheckOutDate.ToString("MMM dd, yyyy")</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <div class="detail-item">
+                                    <i class="fas fa-moon text-info me-1"></i>
+                                    <small class="text-muted">Nights</small>
+                                    <div class="fw-medium">@Model.TotalNights</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="detail-item">
+                                    <i class="fas fa-user text-primary me-1"></i>
+                                    <small class="text-muted">Adults</small>
+                                    <div class="fw-medium">@Model.Adults</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="detail-item">
+                                    <i class="fas fa-door-open text-warning me-1"></i>
+                                    <small class="text-muted">Rooms</small>
+                                    <div class="fw-medium">@Model.Rooms</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room Information -->
+                    <div class="room-info mb-4">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-bed me-2 text-primary"></i>
+                            Room Details
+                        </h6>
+                        <div class="room-type fw-medium mb-1">
+                            @(!string.IsNullOrEmpty(Model.RoomType) ? Model.RoomType : "Standard Room")
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.RoomDescription))
+                        {
+                            <div class="text-muted small">@Model.RoomDescription</div>
+                        }
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="price-breakdown">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-calculator me-2 text-primary"></i>
+                            Price Breakdown
+                        </h6>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Room rate (@Model.TotalNights night@(Model.TotalNights > 1 ? "s" : ""))</span>
+                            <span>@Model.Currency @((Model.TotalPrice / Model.TotalNights).ToString("N2"))</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Taxes & Fees</span>
+                            <span class="text-success">Included</span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold h6">Total Amount</span>
+                            <span class="fw-bold h5 text-success">@Model.Currency @Model.TotalPrice.ToString("N2")</span>
+                        </div>
+                    </div>
+
+                    <!-- Cancellation Policy -->
+                    <div class="cancellation-policy mt-4 p-3 bg-light rounded">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-info-circle me-2 text-info"></i>
+                            Cancellation Policy
+                        </h6>
+                        <small class="text-muted">
+                            Free cancellation until 48 hours before check-in. 
+                            After that, the first night will be charged.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Hotel Details
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-control-lg {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control-lg:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .detail-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+        
+        .sticky-top {
+            position: sticky;
+            top: 20px;
+            z-index: 1020;
+        }
+        
+        .cancellation-policy {
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .hotel-summary {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+        
+        .stay-details {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+        
+        .room-info {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 15px;
+        }
+    </style>
+}

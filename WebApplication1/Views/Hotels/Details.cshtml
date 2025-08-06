@@ -1,0 +1,452 @@
+@model HotelDetailsViewModel
+@{
+    ViewData["Title"] = $"Hotel Details - {Model.HotelName}";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Hotels" asp-action="Index">Search Hotels</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.HotelName</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hotel Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="flex-grow-1">
+                                    <h1 class="h2 fw-bold mb-2">
+                                        <i class="fas fa-hotel me-2 text-primary"></i>
+                                        @Model.HotelName
+                                        @if (!string.IsNullOrEmpty(Model.ChainCode))
+                                        {
+                                            <span class="badge bg-secondary ms-2">@Model.ChainCode</span>
+                                        }
+                                    </h1>
+                                    
+                                    @if (Model.Address != null)
+                                    {
+                                        <div class="text-muted mb-2">
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            @if (Model.Address.Lines.Any())
+                                            {
+                                                @string.Join(", ", Model.Address.Lines)
+                                            }
+                                            @if (!string.IsNullOrEmpty(Model.Address.CityName))
+                                            {
+                                                <br />
+                                                <span>@Model.Address.CityName, @Model.Address.CountryCode</span>
+                                            }
+                                        </div>
+                                    }
+
+                                    <div class="d-flex flex-wrap gap-3 text-muted">
+                                        <span>
+                                            <i class="fas fa-calendar-check me-1"></i>
+                                            @Model.CheckInDate.ToString("MMM dd, yyyy")
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-calendar-times me-1"></i>
+                                            @Model.CheckOutDate.ToString("MMM dd, yyyy")
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-moon me-1"></i>
+                                            @Model.TotalNights night@(Model.TotalNights > 1 ? "s" : "")
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-user me-1"></i>
+                                            @Model.Adults adult@(Model.Adults > 1 ? "s" : "")
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-door-open me-1"></i>
+                                            @Model.Rooms room@(Model.Rooms > 1 ? "s" : "")
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            @if (Model.Sentiment != null)
+                            {
+                                <div class="rating-section">
+                                    <div class="d-flex align-items-center justify-content-end mb-2">
+                                        <div class="rating-stars me-2">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= Model.Sentiment.OverallRating)
+                                                {
+                                                    <i class="fas fa-star text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="far fa-star text-muted"></i>
+                                                }
+                                            }
+                                        </div>
+                                        <span class="h4 mb-0 text-primary fw-bold">@Model.Sentiment.OverallRating/5</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">
+                                            Based on @Model.Sentiment.NumberOfReviews.ToString("N0") reviews
+                                        </small>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="rating-section">
+                                    <div class="d-flex align-items-center justify-content-end mb-2">
+                                        <div class="rating-stars me-2">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fas fa-star text-warning"></i>
+                                            }
+                                        </div>
+                                        <span class="h4 mb-0 text-primary fw-bold">4.2/5</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">Guest Rating</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Sentiment != null)
+    {
+        <!-- Hotel Ratings Breakdown -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Guest Rating Breakdown
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="rating-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-medium">Location</span>
+                                        <span class="badge bg-primary">@Model.Sentiment.Sentiments.Location/10</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar" style="width: @(Model.Sentiment.Sentiments.Location * 10)%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="rating-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-medium">Service</span>
+                                        <span class="badge bg-primary">@Model.Sentiment.Sentiments.Service/10</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar" style="width: @(Model.Sentiment.Sentiments.Service * 10)%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="rating-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-medium">Room Comfort</span>
+                                        <span class="badge bg-primary">@Model.Sentiment.Sentiments.RoomComforts/10</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar" style="width: @(Model.Sentiment.Sentiments.RoomComforts * 10)%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="rating-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-medium">Value for Money</span>
+                                        <span class="badge bg-primary">@Model.Sentiment.Sentiments.ValueForMoney/10</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar" style="width: @(Model.Sentiment.Sentiments.ValueForMoney * 10)%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Hotel Amenities -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star me-2"></i>
+                        Hotel Amenities
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-wifi text-primary me-2"></i>
+                                <span>Free WiFi</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-parking text-primary me-2"></i>
+                                <span>Parking Available</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-swimming-pool text-primary me-2"></i>
+                                <span>Swimming Pool</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-dumbbell text-primary me-2"></i>
+                                <span>Fitness Center</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-concierge-bell text-primary me-2"></i>
+                                <span>Room Service</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-utensils text-primary me-2"></i>
+                                <span>Restaurant</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-cocktail text-primary me-2"></i>
+                                <span>Bar/Lounge</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="amenity-item">
+                                <i class="fas fa-spa text-primary me-2"></i>
+                                <span>Spa Services</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewData["ErrorMessage"] != null)
+    {
+        <!-- Error Message Alert -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @ViewData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Available Rooms and Offers -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bed me-2"></i>
+                        Available Rooms & Rates
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.HasOffers && Model.Offers.Any())
+                    {
+                        <div class="row g-3">
+                            @foreach (var offer in Model.Offers)
+                            {
+                                <div class="col-md-12">
+                                    <div class="offer-card border rounded p-3 mb-3">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <div class="room-info">
+                                                    <h6 class="fw-bold mb-2">
+                                                        <i class="fas fa-door-open me-2 text-primary"></i>
+                                                        @(!string.IsNullOrEmpty(offer.Room.Type) ? offer.Room.Type : "Standard Room")
+                                                    </h6>
+                                                    
+                                                    @if (!string.IsNullOrEmpty(offer.Room.Description.Text))
+                                                    {
+                                                        <p class="text-muted mb-2">@offer.Room.Description.Text</p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-muted mb-2">Comfortable accommodation with modern amenities</p>
+                                                    }
+                                                    
+                                                    <div class="room-features d-flex flex-wrap gap-2">
+                                                        <span class="badge bg-light text-dark">
+                                                            <i class="fas fa-user me-1"></i>
+                                                            Max @Model.Adults guests
+                                                        </span>
+                                                        <span class="badge bg-light text-dark">
+                                                            <i class="fas fa-bed me-1"></i>
+                                                            @offer.RoomQuantity room@(offer.RoomQuantity > 1 ? "s" : "")
+                                                        </span>
+                                                        <span class="badge bg-light text-dark">
+                                                            <i class="fas fa-ban-smoking me-1"></i>
+                                                            Non-smoking
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <div class="price-section">
+                                                    <div class="price-breakdown mb-2">
+                                                        @if (!string.IsNullOrEmpty(offer.Price.Base) && offer.Price.Base != offer.Price.Total)
+                                                        {
+                                                            <small class="text-muted">Base Price: @offer.Price.Currency @decimal.Parse(offer.Price.Base).ToString("N2")</small><br>
+                                                        }
+                                                        @if (offer.Price.Taxes.Any())
+                                                        {
+                                                            <small class="text-muted">Taxes & Fees included</small><br>
+                                                        }
+                                                    </div>
+                                                    <div class="total-price mb-3">
+                                                        <h4 class="text-success fw-bold mb-0">
+                                                            @offer.Price.Currency @decimal.Parse(offer.Price.Total).ToString("N2")
+                                                        </h4>
+                                                        <small class="text-muted">per night</small>
+                                                    </div>
+                                                    <div class="d-grid">
+                                                        <a asp-action="Book" 
+                                                           asp-route-offerId="@offer.Id"
+                                                           asp-route-hotelId="@Model.HotelId"
+                                                           asp-route-checkInDate="@Model.CheckInDate.ToString("yyyy-MM-dd")"
+                                                           asp-route-checkOutDate="@Model.CheckOutDate.ToString("yyyy-MM-dd")"
+                                                           asp-route-adults="@Model.Adults"
+                                                           asp-route-rooms="@Model.Rooms"
+                                                           class="btn btn-primary">
+                                                            <i class="fas fa-shopping-cart me-2"></i>
+                                                            Book Now
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle display-1 text-muted mb-3"></i>
+                            <h4>No Rooms Available</h4>
+                            <p class="text-muted mb-4">
+                                Unfortunately, there are no rooms available for your selected dates. 
+                                Please try different dates or contact the hotel directly.
+                            </p>
+                            <a asp-action="Index" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>
+                                Search Again
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Search Button -->
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            <a href="javascript:history.back()" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Results
+            </a>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-search me-2"></i>
+                New Search
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .offer-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef !important;
+        }
+        
+        .offer-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .rating-stars .fa-star {
+            font-size: 18px;
+        }
+        
+        .amenity-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .amenity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .rating-item .progress {
+            background-color: #f8f9fa;
+        }
+        
+        .rating-item .progress-bar {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 50%, #17a2b8 100%);
+        }
+        
+        .room-features .badge {
+            font-size: 0.75rem;
+        }
+        
+        .price-section {
+            text-align: right;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+    </style>
+}

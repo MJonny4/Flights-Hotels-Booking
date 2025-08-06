@@ -1,0 +1,287 @@
+@{
+    ViewData["Title"] = "Booking Confirmation";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Success Message -->
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center py-5">
+                    <!-- Success Icon -->
+                    <div class="success-icon mb-4">
+                        <i class="fas fa-check-circle display-1 text-success"></i>
+                    </div>
+                    
+                    <!-- Success Message -->
+                    <h1 class="h2 text-success fw-bold mb-3">
+                        <i class="fas fa-party-horn me-2"></i>
+                        Booking Confirmed!
+                    </h1>
+                    
+                    <p class="lead text-muted mb-4">
+                        @TempData["BookingSuccess"]
+                    </p>
+
+                    <!-- Booking Reference -->
+                    <div class="booking-reference mb-5">
+                        <div class="reference-card bg-light p-4 rounded">
+                            <h5 class="fw-bold mb-2">
+                                <i class="fas fa-ticket-alt me-2 text-primary"></i>
+                                Booking Reference
+                            </h5>
+                            <div class="reference-number">
+                                <span class="h3 text-primary fw-bold font-monospace">@TempData["BookingReference"]</span>
+                            </div>
+                            <small class="text-muted">Please save this reference number for your records</small>
+                        </div>
+                    </div>
+
+                    <!-- Booking Details -->
+                    <div class="booking-details mb-5">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="detail-card p-3 border rounded">
+                                    <i class="fas fa-hotel h4 text-primary mb-2"></i>
+                                    <h6 class="fw-bold">Hotel</h6>
+                                    <p class="mb-0">@TempData["HotelName"]</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-card p-3 border rounded">
+                                    <i class="fas fa-calendar h4 text-success mb-2"></i>
+                                    <h6 class="fw-bold">Stay Dates</h6>
+                                    <p class="mb-0">
+                                        @TempData["CheckInDate"] - @TempData["CheckOutDate"]
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="detail-card p-3 border rounded">
+                                    <i class="fas fa-dollar-sign h4 text-warning mb-2"></i>
+                                    <h6 class="fw-bold">Total Amount</h6>
+                                    <p class="h5 text-success fw-bold mb-0">@TempData["TotalPrice"]</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Steps -->
+                    <div class="next-steps mb-5">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-list-check me-2 text-info"></i>
+                            What's Next?
+                        </h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="step-item p-3 h-100">
+                                    <i class="fas fa-envelope display-4 text-primary mb-3"></i>
+                                    <h6 class="fw-bold">Email Confirmation</h6>
+                                    <p class="small text-muted mb-0">
+                                        You'll receive a confirmation email with all booking details within 5 minutes.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="step-item p-3 h-100">
+                                    <i class="fas fa-phone display-4 text-success mb-3"></i>
+                                    <h6 class="fw-bold">Hotel Contact</h6>
+                                    <p class="small text-muted mb-0">
+                                        The hotel will contact you 24-48 hours before check-in to confirm your arrival.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="step-item p-3 h-100">
+                                    <i class="fas fa-suitcase display-4 text-warning mb-3"></i>
+                                    <h6 class="fw-bold">Pack & Go</h6>
+                                    <p class="small text-muted mb-0">
+                                        Pack your bags and get ready for an amazing stay! Check-in starts at 3:00 PM.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Important Information -->
+                    <div class="important-info mb-5">
+                        <div class="alert alert-info border-0 shadow-sm">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Important Information
+                            </h6>
+                            <ul class="list-unstyled mb-0 small text-start">
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Please bring a valid photo ID and credit card for check-in
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Check-in time: 3:00 PM | Check-out time: 11:00 AM
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Free cancellation available up to 48 hours before check-in
+                                </li>
+                                <li class="mb-0">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    For any changes or questions, contact us with your booking reference
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary btn-lg w-100">
+                                    <i class="fas fa-home me-2"></i>
+                                    Back to Home
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a asp-action="Index" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-search me-2"></i>
+                                    Book Another Hotel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Contact -->
+            <div class="support-section text-center mt-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body py-3">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-headset me-2 text-primary"></i>
+                            Need Help?
+                        </h6>
+                        <p class="mb-0 small text-muted">
+                            Our customer support team is available 24/7 to assist you.
+                            <br />
+                            Email: <a href="mailto:support@travelapp.com" class="text-primary">support@travelapp.com</a> | 
+                            Phone: <a href="tel:+1234567890" class="text-primary">+1 (234) 567-8900</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Confetti animation for booking confirmation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add some celebration animation
+            setTimeout(function() {
+                const successIcon = document.querySelector('.success-icon i');
+                if (successIcon) {
+                    successIcon.style.animation = 'pulse 1s infinite';
+                }
+            }, 500);
+        });
+    </script>
+    
+    <style>
+        .success-icon i {
+            animation: bounceIn 1s ease-in-out;
+        }
+        
+        @@keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .reference-card {
+            border: 2px dashed #0d6efd;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+        }
+        
+        .reference-number {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .detail-card {
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .detail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .step-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .step-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn-outline-primary {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card {
+            border-radius: 15px;
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+}

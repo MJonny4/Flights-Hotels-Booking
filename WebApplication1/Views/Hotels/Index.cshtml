@@ -1,0 +1,278 @@
+@model HotelSearchViewModel
+@{
+    ViewData["Title"] = "Search Hotels";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Search Hotels</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="hero-section bg-primary text-white rounded p-5">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="display-4 fw-bold mb-3">
+                            <i class="fas fa-hotel me-3"></i>
+                            Find Your Perfect Stay
+                        </h1>
+                        <p class="lead mb-0">
+                            Discover amazing hotels worldwide with the best prices and amenities for your perfect getaway.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <i class="fas fa-building display-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hotel Search Form -->
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg">
+                <div class="card-header bg-white">
+                    <h3 class="card-title text-center mb-0">
+                        <i class="fas fa-search me-2 text-primary"></i>
+                        Search Hotels
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Search" method="post">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                        <div class="row g-3">
+                            <!-- Destination City -->
+                            <div class="col-md-6">
+                                <label asp-for="SelectedCityId" class="form-label fw-bold">
+                                    <i class="fas fa-map-marker-alt me-1 text-primary"></i>
+                                    Destination
+                                </label>
+                                <select asp-for="SelectedCityId" class="form-select form-select-lg">
+                                    <option value="">Select your destination</option>
+                                    @foreach (var city in Model.AvailableCities)
+                                    {
+                                        <option value="@city.Id">@city.Name, @city.CountryCode</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="SelectedCityId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Guests and Rooms -->
+                            <div class="col-md-6">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label asp-for="Adults" class="form-label fw-bold">
+                                            <i class="fas fa-user me-1 text-primary"></i>
+                                            Adults
+                                        </label>
+                                        <select asp-for="Adults" class="form-select form-select-lg">
+                                            @for (int i = 1; i <= 10; i++)
+                                            {
+                                                <option value="@i" selected="@(Model.Adults == i)">@i Adult@(i > 1 ? "s" : "")</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Adults" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-6">
+                                        <label asp-for="Rooms" class="form-label fw-bold">
+                                            <i class="fas fa-bed me-1 text-primary"></i>
+                                            Rooms
+                                        </label>
+                                        <select asp-for="Rooms" class="form-select form-select-lg">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <option value="@i" selected="@(Model.Rooms == i)">@i Room@(i > 1 ? "s" : "")</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Rooms" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Check-in Date -->
+                            <div class="col-md-6">
+                                <label asp-for="CheckInDate" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-check me-1 text-success"></i>
+                                    Check-in Date
+                                </label>
+                                <input asp-for="CheckInDate" class="form-control form-control-lg" type="date" />
+                                <span asp-validation-for="CheckInDate" class="text-danger"></span>
+                            </div>
+
+                            <!-- Check-out Date -->
+                            <div class="col-md-6">
+                                <label asp-for="CheckOutDate" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-times me-1 text-danger"></i>
+                                    Check-out Date
+                                </label>
+                                <input asp-for="CheckOutDate" class="form-control form-control-lg" type="date" />
+                                <span asp-validation-for="CheckOutDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
+                                    <i class="fas fa-search me-2"></i>
+                                    Search Hotels
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Destinations -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h3 class="text-center mb-4">
+                <i class="fas fa-star me-2 text-warning"></i>
+                Popular Destinations
+            </h3>
+            <div class="row g-3">
+                @foreach (var city in Model.AvailableCities.Take(6))
+                {
+                    <div class="col-md-4 col-lg-2">
+                        <div class="card h-100 border-0 shadow-sm destination-card" style="cursor: pointer;" 
+                             onclick="selectDestination(@city.Id, '@city.Name')">
+                            <div class="card-body text-center p-3">
+                                <i class="fas fa-city display-6 text-primary mb-2"></i>
+                                <h6 class="card-title mb-1 fw-bold">@city.Name</h6>
+                                <small class="text-muted">@city.CountryCode</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-shield-alt display-4 text-success mb-3"></i>
+                        <h5 class="fw-bold">Best Price Guarantee</h5>
+                        <p class="text-muted">We guarantee the best prices on hotel bookings worldwide.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-clock display-4 text-info mb-3"></i>
+                        <h5 class="fw-bold">24/7 Support</h5>
+                        <p class="text-muted">Round-the-clock customer support for all your booking needs.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-award display-4 text-warning mb-3"></i>
+                        <h5 class="fw-bold">Quality Hotels</h5>
+                        <p class="text-muted">Carefully selected hotels with excellent ratings and reviews.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none !important;
+        }
+        
+        .destination-card {
+            transition: all 0.3s ease;
+        }
+        
+        .destination-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        }
+        
+        .form-select-lg, .form-control-lg {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-select-lg:focus, .form-control-lg:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+    </style>
+    
+    <script>
+        // Set minimum dates
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const checkInDate = document.getElementById('CheckInDate');
+            const checkOutDate = document.getElementById('CheckOutDate');
+            
+            // Set minimum date to today
+            const todayStr = today.toISOString().split('T')[0];
+            checkInDate.min = todayStr;
+            checkOutDate.min = todayStr;
+            
+            // Update checkout minimum when checkin changes
+            checkInDate.addEventListener('change', function() {
+                const checkIn = new Date(this.value);
+                checkIn.setDate(checkIn.getDate() + 1);
+                checkOutDate.min = checkIn.toISOString().split('T')[0];
+                
+                // If checkout is before new minimum, update it
+                if (checkOutDate.value && new Date(checkOutDate.value) <= new Date(this.value)) {
+                    checkOutDate.value = checkIn.toISOString().split('T')[0];
+                }
+            });
+        });
+        
+        // Select destination from popular destinations
+        function selectDestination(cityId, cityName) {
+            document.getElementById('SelectedCityId').value = cityId;
+            
+            // Scroll to form
+            document.querySelector('.card').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+            
+            // Highlight the selected destination
+            document.querySelectorAll('.destination-card').forEach(card => {
+                card.classList.remove('border-primary');
+            });
+            event.currentTarget.classList.add('border-primary');
+        }
+    </script>
+}

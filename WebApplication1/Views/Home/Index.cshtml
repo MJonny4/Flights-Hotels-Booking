@@ -1,0 +1,143 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-plane me-3"></i>
+                    FlightBooking Pro
+                </h1>
+                <p class="lead mb-4">
+                    Book flights to your dream destinations with ease. 
+                    We offer flights between 7 major world cities with competitive prices and excellent service.
+                </p>
+                <a asp-controller="Flights" asp-action="Index" class="btn btn-light btn-lg">
+                    <i class="fas fa-search me-2"></i>
+                    Search Flights Now
+                </a>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-globe display-1 opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+            <h2 class="mb-3">Our Destinations</h2>
+            <p class="text-muted">Fly between these amazing world cities</p>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-city fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">New York</h5>
+                    <p class="card-text">The city that never sleeps. Experience the vibrant culture and iconic landmarks.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-crown fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">London</h5>
+                    <p class="card-text">Rich history and royal heritage. Discover the charm of the British capital.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-torii-gate fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Tokyo</h5>
+                    <p class="card-text">Where tradition meets technology. Explore the fascinating Japanese culture.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-mosque fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Dubai</h5>
+                    <p class="card-text">Luxury and innovation in the desert. Experience the modern Middle East.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-water fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Sydney</h5>
+                    <p class="card-text">Beautiful harbors and beaches. Discover the natural beauty of Australia.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-mountain fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Cape Town</h5>
+                    <p class="card-text">Stunning landscapes and rich culture. Experience the beauty of South Africa.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <h3 class="mb-3">Why Choose FlightBooking Pro?</h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Daily flights to all destinations</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Economy and Business class options</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Multiple meal preferences</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Free cancellation up to 7 days</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Automatic seat assignment</li>
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Seasonal pricing and promotions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center">
+                            <a asp-controller="Flights" asp-action="Index" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plane me-2"></i>
+                                Start Booking
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
+    
+    .card {
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
